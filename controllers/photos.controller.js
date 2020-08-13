@@ -12,12 +12,26 @@ exports.add = async (req, res) => {
 
       const fileName = file.path.split('/').slice(-1)[0]; // cut only filename from full path, e.g. C:/test/abc.jpg -> abc.jpg
       const fileExt = fileName.split('.').slice(-1)[0]; // get extension
-      if (fileExt == 'jpg' || fileExt == 'tif' || fileExt == 'png') {
-        const newPhoto = new Photo({ title, author, email, src: fileName, votes: 0 });
-        await newPhoto.save();
-        res.json(newPhoto);
+      
+
+      if ((fileExt == 'jpg' || fileExt == 'tif' || fileExt == 'png') && (title.length <= 25 && author.length <= 50)) {
+
+        const tagChecker = RegExp.prototype.test.bind(/<|>/); //checks for tag bracket
+        const atChecker = RegExp.prototype.test.bind(/@/); //checks for monkey
+        const spaceChecker = RegExp.prototype.test.bind(/\s/); //checks for blank spaces
+        const dotChecker = RegExp.prototype.test.bind(/\./); //checks for dot
+
+        if(tagChecker(title) === false && atChecker(email) === true && spaceChecker(email) === false && dotChecker(email) === true){
+          const newPhoto = new Photo({ title, author, email, src: fileName, votes: 0 });
+          await newPhoto.save();
+          res.json(newPhoto);
+          
+        } else {
+          throw new Error('Tags or no valid email!');
+        }
+      
       } else {
-        throw new Error('Wrong filetype!'); // no repsonse
+        throw new Error('Wrong filetype!');
       }
 
     } else {
