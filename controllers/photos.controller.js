@@ -1,4 +1,6 @@
 const Photo = require('../models/photo.model');
+const Voter = require('../models/voters.model');
+const requestIp = require('request-ip');
 
 /****** SUBMIT PHOTO ********/
 
@@ -62,14 +64,42 @@ exports.vote = async (req, res) => {
 
   try {
     const photoToUpdate = await Photo.findOne({ _id: req.params.id });
+    const voter = await Voter.findOne({ user: req.clientIp });
+    //console.log('voter: ', voter)
+    console.log('photo: ', photoToUpdate)
+
     if(!photoToUpdate) res.status(404).json({ message: 'Not found' });
     else {
-      photoToUpdate.votes++;
-      photoToUpdate.save();
-      res.send({ message: 'OK' });
+      if (voter != null) {
+        if (voter.votes.includes(photoToUpdate._id)) {
+          console.log('no double-voting please...')
+          res.status(500).json(err);
+        } else {
+          //const array = voter.votes
+          //const newelement = photoToUpdate._id
+          //console.log('arr:',array)
+          //console.log('elem:',newelement)
+          //array.push(newelement);
+          //console.log('arr2:',array)
+          voter.votes.push(photoToUpdate._id)
+          await voter.save();
+          photoToUpdate.votes++;
+          photoToUpdate.save();
+          res.send({ message: 'OK, returning user voted' });
+          console.log('OK, returning user voted')
+        }
+      } else {
+        const newVoter = new Voter({ user: req.clientIp, votes: [photoToUpdate._id]});
+        await newVoter.save();
+        photoToUpdate.votes++;
+        photoToUpdate.save();
+        res.send({ message: 'OK, new user voted' });
+        console.log('OK, new user voted')
+      }
     }
   } catch(err) {
     res.status(500).json(err);
+    console.log('error')
   }
 
 };

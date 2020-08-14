@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
-const votersSchema = new mongoose.Schema({
-    user: { type: String, required: true },
-    votes: { type: Array, required: true },
+const voterSchema = new mongoose.Schema({
+  user: { type: String, required: true },
+  votes: { type: Array, required: true },
 });
 
-module.exports = mongoose.model('Voters', votersSchema);
+module.exports = mongoose.model('Voters', voterSchema) 
