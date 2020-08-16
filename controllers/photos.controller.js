@@ -70,7 +70,7 @@ exports.vote = async (req, res) => {
 
     if(!photoToUpdate) res.status(404).json({ message: 'Not found' });
     else {
-      if (voter != null) {
+      if (voter) {
         if (voter.votes.includes(photoToUpdate._id)) {
           console.log('no double-voting please...')
           res.status(500).json(err);
